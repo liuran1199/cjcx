@@ -6,58 +6,69 @@ const dbPath = path.join(__dirname, 'campus.db');
 let db;
 
 function initDatabase() {
-  db = new Database(dbPath);
+  if (db) return db;
+
+  try {
+    db = new Database(dbPath);
+  } catch (err) {
+    throw new Error(`Failed to open database at ${dbPath}: ${err.message}`);
+  }
+
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
 
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS exams (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      id_verify INTEGER DEFAULT 0,
-      score_columns TEXT DEFAULT '[]',
-      created_at TEXT DEFAULT (datetime('now','localtime'))
-    );
+  try {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS exams (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        id_verify INTEGER DEFAULT 0,
+        score_columns TEXT DEFAULT '[]',
+        created_at TEXT DEFAULT (datetime('now','localtime'))
+      );
 
-    CREATE TABLE IF NOT EXISTS scores (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      exam_id INTEGER NOT NULL REFERENCES exams(id) ON DELETE CASCADE,
-      student_id TEXT NOT NULL,
-      name TEXT NOT NULL,
-      id_card TEXT DEFAULT '',
-      score_data TEXT DEFAULT '{}',
-      created_at TEXT DEFAULT (datetime('now','localtime'))
-    );
+      CREATE TABLE IF NOT EXISTS scores (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        exam_id INTEGER NOT NULL REFERENCES exams(id) ON DELETE CASCADE,
+        student_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        id_card TEXT DEFAULT '',
+        score_data TEXT DEFAULT '{}',
+        created_at TEXT DEFAULT (datetime('now','localtime'))
+      );
 
-    CREATE UNIQUE INDEX IF NOT EXISTS idx_scores_exam_student
-      ON scores(exam_id, student_id);
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_scores_exam_student
+        ON scores(exam_id, student_id);
 
-    CREATE TABLE IF NOT EXISTS admins (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      employee_id TEXT NOT NULL UNIQUE,
-      password TEXT DEFAULT '',
-      name TEXT NOT NULL,
-      role TEXT DEFAULT 'admin',
-      auth_type TEXT DEFAULT 'local',
-      created_at TEXT DEFAULT (datetime('now','localtime'))
-    );
+      CREATE TABLE IF NOT EXISTS admins (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        employee_id TEXT NOT NULL UNIQUE,
+        password TEXT DEFAULT '',
+        name TEXT NOT NULL,
+        role TEXT DEFAULT 'admin',
+        auth_type TEXT DEFAULT 'local',
+        created_at TEXT DEFAULT (datetime('now','localtime'))
+      );
 
-    CREATE TABLE IF NOT EXISTS query_logs (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      exam_id INTEGER,
-      student_id TEXT,
-      ip TEXT,
-      result TEXT,
-      created_at TEXT DEFAULT (datetime('now','localtime'))
-    );
+      CREATE TABLE IF NOT EXISTS query_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        exam_id INTEGER,
+        student_id TEXT,
+        ip TEXT,
+        result TEXT,
+        created_at TEXT DEFAULT (datetime('now','localtime'))
+      );
 
-    CREATE TABLE IF NOT EXISTS cas_config (
-      id INTEGER PRIMARY KEY CHECK (id = 1),
-      enabled INTEGER DEFAULT 0,
-      cas_url TEXT DEFAULT '',
-      service_url TEXT DEFAULT ''
-    );
-  `);
+      CREATE TABLE IF NOT EXISTS cas_config (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        enabled INTEGER DEFAULT 0,
+        cas_url TEXT DEFAULT '',
+        service_url TEXT DEFAULT ''
+      );
+    `);
+  } catch (err) {
+    throw new Error(`Failed to initialize database schema: ${err.message}`);
+  }
 
   const row = db.prepare('SELECT id FROM cas_config WHERE id = 1').get();
   if (!row) {
@@ -69,15 +80,24 @@ function initDatabase() {
     const hash = bcrypt.hashSync('admin123', 10);
     db.prepare('INSERT INTO admins (employee_id, password, name, role, auth_type) VALUES (?,?,?,?,?)')
       .run('admin', hash, '系统管理员', 'superadmin', 'local');
-    console.log('已创建默认管理员: admin / admin123');
   }
 
-  console.log('数据库初始化完成');
+
   return db;
 }
 
 function getDb() {
+  if (!db) {
+    throw new Error('Database not initialized. Call initDatabase() first.');
+  }
   return db;
 }
 
-module.exports = { initDatabase, getDb };
+function closeDatabase() {
+  if (db) {
+    db.close();
+    db = null;
+  }
+}
+
+module.exports = { initDatabase, getDb, closeDatabase };
