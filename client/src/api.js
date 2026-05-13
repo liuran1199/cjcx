@@ -44,6 +44,7 @@ export const adminApi = {
   updateExam: (id, data) => api.put(`/admin/exams/${id}`, data),
   deleteExam: (id) => api.delete(`/admin/exams/${id}`),
 
+  downloadTemplate: (examId) => `/admin/exams/${examId}/template`,
   previewExcel: (examId, file) => {
     const fd = new FormData()
     fd.append('file', file)

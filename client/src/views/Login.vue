@@ -60,6 +60,9 @@ const checkCasConfig = async () => {
   try {
     const res = await authApi.getCasConfig()
     casEnabled.value = res.data.enabled
+    if (res.data.enabled) {
+      handleCasLogin()
+    }
   } catch (err) {
     casEnabled.value = false
   }
@@ -96,7 +99,7 @@ const handleLogin = async () => {
 }
 
 onMounted(() => {
-  const token = route.query.token
+  const token = route.query.ticket_token
   if (token) {
     localStorage.setItem('token', token)
     try {

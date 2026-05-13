@@ -8,7 +8,7 @@ const router = express.Router();
 // GET  /api/query/exams          —  get list of queryable exams
 router.get('/exams', authenticateToken, (req, res) => {
   const db = getDb();
-  const exams = db.prepare('SELECT id, name, id_verify, created_at FROM exams ORDER BY id DESC').all();
+  const exams = db.prepare('SELECT id, name, id_verify, created_at FROM exams WHERE enabled = 1 ORDER BY id DESC').all();
   res.json(exams);
 });
 

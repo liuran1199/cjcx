@@ -27,25 +27,27 @@ router.get('/exams', (req, res) => {
 
 // POST /api/admin/exams      —  create exam
 router.post('/exams', (req, res) => {
-  const { name, id_verify, score_columns } = req.body;
+  const { name, id_verify, score_columns, enabled } = req.body;
   if (!name) {
     return res.status(400).json({ error: '考试名称不能为空' });
   }
   const db = getDb();
-  const result = db.prepare('INSERT INTO exams (name, id_verify, score_columns) VALUES (?,?,?)')
-    .run(name, id_verify ? 1 : 0, JSON.stringify(score_columns || []));
+  const result = db.prepare('INSERT INTO exams (name, id_verify, score_columns, enabled) VALUES (?,?,?,?)')
+    .run(name, id_verify ? 1 : 0, JSON.stringify(score_columns || []), enabled !== undefined ? (enabled ? 1 : 0) : 1);
   res.status(201).json({ id: result.lastInsertRowid, message: '创建成功' });
 });
 
 // PUT  /api/admin/exams/:id  —  update exam
 router.put('/exams/:id', (req, res) => {
-  const { name, id_verify, score_columns } = req.body;
+  const { name, id_verify, score_columns, enabled } = req.body;
   const db = getDb();
   const exam = db.prepare('SELECT * FROM exams WHERE id = ?').get(req.params.id);
   if (!exam) return res.status(404).json({ error: '考试不存在' });
-  db.prepare('UPDATE exams SET name=?, id_verify=?, score_columns=? WHERE id=?')
+  db.prepare('UPDATE exams SET name=?, id_verify=?, score_columns=?, enabled=? WHERE id=?')
     .run(name || exam.name, id_verify !== undefined ? (id_verify ? 1 : 0) : exam.id_verify,
-      JSON.stringify(score_columns || JSON.parse(exam.score_columns || '[]')), req.params.id);
+      JSON.stringify(score_columns || JSON.parse(exam.score_columns || '[]')),
+      enabled !== undefined ? (enabled ? 1 : 0) : exam.enabled,
+      req.params.id);
   res.json({ message: '更新成功' });
 });
 
@@ -61,6 +63,27 @@ router.delete('/exams/:id', (req, res) => {
 });
 
 // ==================== Excel Import ====================
+
+// GET  /api/admin/exams/:id/template —  download Excel template
+router.get('/exams/:id/template', (req, res) => {
+  const db = getDb();
+  const exam = db.prepare('SELECT * FROM exams WHERE id = ?').get(req.params.id);
+  if (!exam) return res.status(404).json({ error: '考试不存在' });
+
+  const headers = ['学号', '姓名'];
+  if (exam.id_verify) headers.push('身份证号');
+  const scoreCols = JSON.parse(exam.score_columns || '[]');
+  headers.push(...scoreCols);
+
+  const ws = XLSX.utils.aoa_to_sheet([headers]);
+  ws['!cols'] = headers.map(() => ({ wch: 18 }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+  const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+  res.attachment(`${exam.name}_导入模版.xlsx`);
+  res.send(buf);
+});
 
 // POST /api/admin/exams/:id/preview  —  preview Excel headers + first 5 rows
 router.post('/exams/:id/preview', upload.single('file'), (req, res) => {

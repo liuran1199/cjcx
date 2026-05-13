@@ -23,6 +23,7 @@ function initDatabase() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         id_verify INTEGER DEFAULT 0,
+        enabled INTEGER DEFAULT 1,
         score_columns TEXT DEFAULT '[]',
         created_at TEXT DEFAULT (datetime('now','localtime'))
       );
@@ -69,6 +70,11 @@ function initDatabase() {
   } catch (err) {
     throw new Error(`Failed to initialize database schema: ${err.message}`);
   }
+
+  // Migration: add enabled column if it doesn't exist
+  try { db.exec('ALTER TABLE exams ADD COLUMN enabled INTEGER DEFAULT 1'); } catch {}
+  // Set all existing exams to enabled
+  db.prepare("UPDATE exams SET enabled = 1 WHERE enabled IS NULL").run();
 
   const row = db.prepare('SELECT id FROM cas_config WHERE id = 1').get();
   if (!row) {

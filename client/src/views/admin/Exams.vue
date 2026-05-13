@@ -8,6 +8,11 @@
     <el-table :data="exams" border stripe v-loading="loading">
       <el-table-column prop="id" label="ID" width="60" />
       <el-table-column prop="name" label="考试名称" />
+      <el-table-column label="状态" width="80">
+        <template #default="{ row }">
+          <el-switch :model-value="!!row.enabled" @change="(val) => handleToggle(row, val)" size="small" />
+        </template>
+      </el-table-column>
       <el-table-column label="身份证验证" width="110">
         <template #default="{ row }">
           <el-tag :type="row.id_verify ? 'warning' : 'success'" size="small">
@@ -118,6 +123,14 @@ const handleSave = async () => {
 const handleDelete = async (id) => {
   try { await adminApi.deleteExam(id); ElMessage.success('删除成功'); await fetchExams() }
   catch (e) { ElMessage.error('删除失败') }
+}
+
+const handleToggle = async (row, val) => {
+  try {
+    await adminApi.updateExam(row.id, { enabled: val })
+    row.enabled = val ? 1 : 0
+    ElMessage.success(val ? '已开启' : '已关闭')
+  } catch (e) { ElMessage.error('操作失败') }
 }
 
 onMounted(fetchExams)

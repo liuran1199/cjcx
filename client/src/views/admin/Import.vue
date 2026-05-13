@@ -6,6 +6,10 @@
     </div>
 
     <el-card v-if="!previewData">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <span style="color:#303133">上传成绩文件</span>
+        <el-button type="success" size="small" @click="downloadTemplate">下载导入模版</el-button>
+      </div>
       <el-upload :auto-upload="false" :on-change="handleFileChange" accept=".xlsx" drag :limit="1">
         <el-icon :size="48"><UploadFilled /></el-icon>
         <div>将 Excel 文件拖到此处，或点击上传</div>
@@ -74,7 +78,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { UploadFilled } from '@element-plus/icons-vue'
-import { adminApi } from '../../api'
+import api, { adminApi } from '../../api'
 
 const router = useRouter()
 const route = useRoute()
@@ -129,6 +133,21 @@ const handleImport = async () => {
     ElMessage.error(e.response?.data?.error || '导入失败')
   } finally {
     importing.value = false
+  }
+}
+
+const downloadTemplate = async () => {
+  try {
+    const res = await api.get(adminApi.downloadTemplate(examId), { responseType: 'blob' })
+    const url = URL.createObjectURL(res.data)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${examName.value || '考试'}_导入模版.xlsx`
+    a.click()
+    URL.revokeObjectURL(url)
+    ElMessage.success('模版下载成功')
+  } catch (e) {
+    ElMessage.error('下载模版失败')
   }
 }
 
