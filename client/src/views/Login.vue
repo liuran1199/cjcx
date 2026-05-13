@@ -98,22 +98,18 @@ const handleLogin = async () => {
   }
 }
 
-onMounted(() => {
-  const token = route.query.ticket_token
-  if (token) {
-    localStorage.setItem('token', token)
+onMounted(async () => {
+  // CAS callback — verify login and grab user info from /api/auth/me (JWT in HttpOnly cookie)
+  if (route.query.cas_ok === '1') {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      localStorage.setItem('user', JSON.stringify({
-        employee_id: payload.employee_id,
-        name: payload.name,
-        role: payload.role
-      }))
+      const res = await api.get('/auth/me')
+      localStorage.setItem('token', 'cookie') // marker that auth is via cookie
+      localStorage.setItem('user', JSON.stringify(res.data))
       ElMessage.success('登录成功')
-      const dest = payload.role === 'admin' || payload.role === 'superadmin' ? '/admin' : '/query'
+      const dest = res.data.role === 'admin' || res.data.role === 'superadmin' ? '/admin' : '/query'
       router.push(dest)
     } catch (e) {
-      ElMessage.error('登录信息解析失败')
+      ElMessage.error('登录验证失败')
     }
     return
   }

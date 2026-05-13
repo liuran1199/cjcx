@@ -83,9 +83,17 @@ function initDatabase() {
 
   const admin = db.prepare('SELECT id FROM admins WHERE employee_id = ?').get('admin');
   if (!admin) {
-    const hash = bcrypt.hashSync('admin123', 10);
+    const crypto = require('crypto');
+    const defaultPassword = crypto.randomBytes(8).toString('hex');
+    const hash = bcrypt.hashSync(defaultPassword, 10);
     db.prepare('INSERT INTO admins (employee_id, password, name, role, auth_type) VALUES (?,?,?,?,?)')
       .run('admin', hash, '系统管理员', 'superadmin', 'local');
+    console.log('========================================');
+    console.log('  默认管理员账号已创建:');
+    console.log('  工号: admin');
+    console.log('  密码: ' + defaultPassword);
+    console.log('  请立即登录并修改密码！');
+    console.log('========================================');
   }
 
 

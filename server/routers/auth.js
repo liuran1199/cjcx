@@ -3,7 +3,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const axios = require('axios');
 const { getDb } = require('../database');
-const { authenticateToken, requireAdmin, JWT_SECRET } = require('../middleware/auth');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const router = express.Router();
 
@@ -54,7 +55,7 @@ router.get('/cas/callback', async (req, res) => {
 
   try {
     const serviceUrl = encodeURIComponent((config.service_url || '') + '/api/auth/cas/callback');
-    const validateUrl = `${config.cas_url}/serviceValidate?ticket=${ticket}&service=${serviceUrl}`;
+    const validateUrl = `${config.cas_url}/serviceValidate?ticket=${encodeURIComponent(ticket)}&service=${serviceUrl}`;
     const response = await axios.get(validateUrl);
     const text = response.data;
 
@@ -81,7 +82,8 @@ router.get('/cas/callback', async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    res.redirect(baseUrl + `/login?ticket_token=${token}`);
+    res.cookie('token', token, { httpOnly: true, sameSite: 'lax', maxAge: 24 * 60 * 60 * 1000 });
+    res.redirect(baseUrl + '/login?cas_ok=1');
   } catch (err) {
     console.error('CAS验证失败:', err.message);
     res.redirect(baseUrl + '/login?error=validation_failed');
@@ -103,12 +105,26 @@ router.get('/me', authenticateToken, (req, res) => {
   res.json(req.user);
 });
 
+// Login rate limiter: 5 attempts per minute per IP
+const loginLimiter = require('express-rate-limit')({
+  windowMs: 60 * 1000,
+  max: 5,
+  message: { error: '登录尝试次数过多，请1分钟后再试' },
+  keyGenerator: (req) => req.ip,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
 // POST /api/auth/login       —  local account login
-router.post('/login', (req, res) => {
+router.post('/login', loginLimiter, (req, res) => {
   const { employee_id, password } = req.body;
 
   if (!employee_id || !password) {
     return res.status(400).json({ error: '请输入工号和密码' });
+  }
+
+  if (employee_id.length > 50 || password.length > 100) {
+    return res.status(400).json({ error: '工号或密码格式错误' });
   }
 
   const db = getDb();
@@ -137,6 +153,7 @@ router.post('/login', (req, res) => {
     { expiresIn: '24h' }
   );
 
+  res.cookie('token', token, { httpOnly: true, sameSite: 'lax', maxAge: 24 * 60 * 60 * 1000 });
   res.json({
     token,
     user: { id: admin.id, employee_id: admin.employee_id, name: admin.name, role: admin.role }

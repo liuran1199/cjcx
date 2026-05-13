@@ -7,7 +7,7 @@ const { authenticateToken, requireAdmin, requireSuperAdmin } = require('../middl
 const { encrypt, decrypt } = require('../utils/crypto');
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 // All routes require login + admin
 router.use(authenticateToken, requireAdmin);
@@ -111,7 +111,7 @@ router.post('/exams/:id/preview', upload.single('file'), (req, res) => {
     res.json({ headers, preview: rows, totalRows: data.length - 1 });
   } catch (err) {
     console.error('Excel解析失败:', err.message);
-    res.status(400).json({ error: 'Excel解析失败: ' + err.message });
+    res.status(400).json({ error: 'Excel解析失败，请检查文件格式' });
   }
 });
 
@@ -190,7 +190,7 @@ router.post('/exams/:id/import', upload.single('file'), (req, res) => {
     res.json({ message: `成功导入 ${rows.length} 条成绩` });
   } catch (err) {
     console.error('导入失败:', err.message);
-    res.status(500).json({ error: '导入失败: ' + err.message });
+    res.status(500).json({ error: '导入失败，请稍后重试' });
   }
 });
 

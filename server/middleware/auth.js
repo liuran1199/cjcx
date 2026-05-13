@@ -1,13 +1,24 @@
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
-	  console.error('FATAL: JWT_SECRET environment variable is required');
-	  process.exit(1);
-	}
+  console.error('FATAL: JWT_SECRET environment variable is required');
+  process.exit(1);
+}
+
+function extractToken(req) {
+  // Cookie first (HttpOnly, secure), then Authorization header (API compatibility)
+  if (req.cookies && req.cookies.token) {
+    return req.cookies.token;
+  }
+  const authHeader = req.headers['authorization'];
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.split(' ')[1];
+  }
+  return null;
+}
 
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = extractToken(req);
 
   if (!token) {
     return res.status(401).json({ error: '请先登录' });
@@ -36,4 +47,4 @@ function requireSuperAdmin(req, res, next) {
   next();
 }
 
-module.exports = { authenticateToken, requireAdmin, requireSuperAdmin, JWT_SECRET };
+module.exports = { authenticateToken, requireAdmin, requireSuperAdmin };
