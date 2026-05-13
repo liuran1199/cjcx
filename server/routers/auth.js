@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const axios = require('axios');
 const { getDb } = require('../database');
 const { authenticateToken, requireAdmin, JWT_SECRET } = require('../middleware/auth');
@@ -100,6 +101,46 @@ router.get('/cas/logout', (req, res) => {
 // GET  /api/auth/me           —  get current user
 router.get('/me', authenticateToken, (req, res) => {
   res.json(req.user);
+});
+
+// POST /api/auth/login       —  local account login
+router.post('/login', (req, res) => {
+  const { employee_id, password } = req.body;
+
+  if (!employee_id || !password) {
+    return res.status(400).json({ error: '请输入工号和密码' });
+  }
+
+  const db = getDb();
+  const admin = db.prepare('SELECT * FROM admins WHERE employee_id = ?').get(employee_id);
+
+  if (!admin) {
+    return res.status(401).json({ error: '工号或密码错误' });
+  }
+
+  if (admin.auth_type === 'cas') {
+    return res.status(401).json({ error: '该账号仅支持统一认证登录' });
+  }
+
+  if (!admin.password) {
+    return res.status(401).json({ error: '工号或密码错误' });
+  }
+
+  const validPassword = bcrypt.compareSync(password, admin.password);
+  if (!validPassword) {
+    return res.status(401).json({ error: '工号或密码错误' });
+  }
+
+  const token = jwt.sign(
+    { id: admin.id, employee_id: admin.employee_id, name: admin.name, role: admin.role },
+    JWT_SECRET,
+    { expiresIn: '24h' }
+  );
+
+  res.json({
+    token,
+    user: { id: admin.id, employee_id: admin.employee_id, name: admin.name, role: admin.role }
+  });
 });
 
 module.exports = router;
