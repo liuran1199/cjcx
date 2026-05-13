@@ -1,11 +1,12 @@
 const crypto = require('crypto');
 
 const ALGORITHM = 'aes-256-cbc';
-const KEY = crypto.scryptSync(
-  process.env.ENCRYPTION_KEY || 'score-query-default-key-2024',
-  'salt',
-  32
-);
+const SECRET = process.env.ENCRYPTION_KEY;
+if (!SECRET) {
+  console.error('FATAL: ENCRYPTION_KEY environment variable is required');
+  process.exit(1);
+}
+const KEY = crypto.scryptSync(SECRET, 'salt', 32);
 const IV_LENGTH = 16;
 
 function encrypt(text) {

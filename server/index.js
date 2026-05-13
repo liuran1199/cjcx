@@ -27,6 +27,16 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
+// Validate required environment variables
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is required');
+  process.exit(1);
+}
+if (!process.env.ENCRYPTION_KEY) {
+  console.error('FATAL: ENCRYPTION_KEY environment variable is required');
+  process.exit(1);
+}
+
 // Initialize database
 initDatabase();
 

@@ -80,7 +80,7 @@ router.get('/cas/callback', async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    res.redirect(baseUrl + `/login?token=${token}`);
+    res.redirect(baseUrl + `/login?ticket_token=${token}`);
   } catch (err) {
     console.error('CAS验证失败:', err.message);
     res.redirect(baseUrl + '/login?error=validation_failed');

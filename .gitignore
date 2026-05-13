@@ -2,3 +2,5 @@ node_modules/
 dist/
 campus.db
 *.xlsx
+.env
+!.env.example
