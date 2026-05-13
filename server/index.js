@@ -54,6 +54,7 @@ app.get('*', (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`服务器运行在 http://localhost:${PORT}`);
+  console.log(`局域网访问: http://10.204.0.146:${PORT}`);
 });
