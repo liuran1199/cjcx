@@ -32,7 +32,9 @@ router.beforeEach((to, from, next) => {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
   if (to.meta.requiresAuth && !token) {
-    next('/login')
+    // Admin routes go to local login; student routes go to CAS login
+    const adminMode = to.path.startsWith('/admin') ? '?admin=1' : ''
+    next('/login' + adminMode)
   } else if (to.meta.requiresAdmin && user.role !== 'admin' && user.role !== 'superadmin') {
     next('/query')
   } else if (to.path === '/login' && token) {

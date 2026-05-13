@@ -3,7 +3,11 @@
     <div class="login-box">
       <h2>学生成绩查询系统</h2>
 
-      <template v-if="casEnabled">
+      <template v-if="isAdminMode">
+        <p style="text-align:center;color:#909399;margin-bottom:20px">管理员登录</p>
+      </template>
+
+      <template v-else-if="casEnabled">
         <el-button type="primary" size="large" style="width:100%" @click="handleCasLogin" :loading="casLoading">
           <el-icon><Link /></el-icon>
           统一身份认证登录
@@ -32,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Link } from '@element-plus/icons-vue'
@@ -45,6 +49,7 @@ const formRef = ref(null)
 const loading = ref(false)
 const casLoading = ref(false)
 const casEnabled = ref(false)
+const isAdminMode = computed(() => route.query.admin === '1')
 
 const form = reactive({
   employee_id: '',
@@ -60,6 +65,9 @@ const checkCasConfig = async () => {
   try {
     const res = await authApi.getCasConfig()
     casEnabled.value = res.data.enabled
+    if (res.data.enabled && !isAdminMode.value) {
+      handleCasLogin()
+    }
   } catch (err) {
     casEnabled.value = false
   }
