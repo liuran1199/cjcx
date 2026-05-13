@@ -60,9 +60,6 @@ const checkCasConfig = async () => {
   try {
     const res = await authApi.getCasConfig()
     casEnabled.value = res.data.enabled
-    if (res.data.enabled) {
-      handleCasLogin()
-    }
   } catch (err) {
     casEnabled.value = false
   }
