@@ -36,8 +36,8 @@ router.beforeEach((to, from, next) => {
     const adminMode = to.path.startsWith('/admin') ? '?admin=1' : ''
     next('/login' + adminMode)
   } else if (to.meta.requiresAdmin && user.role !== 'admin' && user.role !== 'superadmin') {
-    next('/query')
-  } else if (to.path === '/login' && token) {
+    next('/login?admin=1')
+  } else if (to.path === '/login' && token && !to.query.admin) {
     next(user.role === 'admin' || user.role === 'superadmin' ? '/admin' : '/query')
   } else {
     next()
