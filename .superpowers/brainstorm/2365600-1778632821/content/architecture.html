@@ -1,0 +1,64 @@
+<h2>系统架构总览</h2>
+<p class="subtitle">特勤招录选拔成绩查询系统</p>
+
+<div class="section">
+  <h3>访问入口</h3>
+  <div style="display:flex;gap:16px;margin-bottom:20px">
+    <div style="flex:1;background:var(--bg-secondary);border-radius:8px;padding:16px;text-align:center">
+      <div style="font-weight:600;margin-bottom:8px">📱 企业微信</div>
+      <p style="font-size:13px;color:var(--text-secondary)">自动 CAS 认证 → 查询页</p>
+    </div>
+    <div style="flex:1;background:var(--bg-secondary);border-radius:8px;padding:16px;text-align:center">
+      <div style="font-weight:600;margin-bottom:8px">💻 PC 浏览器</div>
+      <p style="font-size:13px;color:var(--text-secondary)">跳转 CAS 登录 → 查询页</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>核心组件</h3>
+  <table style="width:100%;border-collapse:collapse">
+    <tr style="border-bottom:1px solid var(--border-color)">
+      <td style="padding:8px 12px;font-weight:600;white-space:nowrap">前端 SPA</td>
+      <td style="padding:8px 12px">Vue 3 + Element Plus + Vite<br><span style="font-size:13px;color:var(--text-secondary)">学生查询页 + 管理员后台（同一应用，路由区分）</span></td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--border-color)">
+      <td style="padding:8px 12px;font-weight:600;white-space:nowrap">后端 API</td>
+      <td style="padding:8px 12px">Node.js + Express<br><span style="font-size:13px;color:var(--text-secondary)">CAS 认证、成绩查询、Excel 导入、管理接口</span></td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--border-color)">
+      <td style="padding:8px 12px;font-weight:600;white-space:nowrap">数据库</td>
+      <td style="padding:8px 12px">SQLite<br><span style="font-size:13px;color:var(--text-secondary)">exams、scores、admins、logs 四张核心表</span></td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;font-weight:600;white-space:nowrap">外部对接</td>
+      <td style="padding:8px 12px">学校 CAS 统一认证<br><span style="font-size:13px;color:var(--text-secondary)">ticket 验证 + JWT 签发</span></td>
+    </tr>
+  </table>
+</div>
+
+<div class="section">
+  <h3>数据库核心表</h3>
+  <table style="width:100%;border-collapse:collapse;font-size:13px">
+    <tr style="background:var(--bg-secondary)">
+      <th style="padding:6px 10px;text-align:left">表名</th>
+      <th style="padding:6px 10px;text-align:left">用途</th>
+    </tr>
+    <tr>
+      <td style="padding:6px 10px;font-weight:600">exams</td>
+      <td style="padding:6px 10px">考试名称、身份证验证开关、成绩列定义（JSON）、创建时间</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 10px;font-weight:600">scores</td>
+      <td style="padding:6px 10px">exam_id、学号、姓名、身份证号、成绩数据（JSON，动态列）</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 10px;font-weight:600">admins</td>
+      <td style="padding:6px 10px">管理员账号、密码哈希、CAS用户标识</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 10px;font-weight:600">query_logs</td>
+      <td style="padding:6px 10px">查询时间、学生学号、考试ID、IP、查询结果</td>
+    </tr>
+  </table>
+</div>

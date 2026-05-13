@@ -1,0 +1,70 @@
+<h2>学生查询流程</h2>
+<p class="subtitle">从打开页面到看到成绩的完整路径</p>
+
+<div class="mockup">
+  <div class="mockup-header">PC 端查询流程</div>
+  <div class="mockup-body">
+    <div style="display:flex;align-items:center;gap:8px;padding:12px 0;flex-wrap:wrap">
+      <div style="background:var(--bg-secondary);border-radius:6px;padding:10px 14px;text-align:center;font-size:13px">
+        <div style="font-weight:600;margin-bottom:4px">步骤1</div>
+        <div>打开页面</div>
+        <div style="color:var(--text-secondary);font-size:11px">检测未登录</div>
+      </div>
+      <div style="font-size:18px;color:var(--text-secondary)">→</div>
+      <div style="background:var(--bg-secondary);border-radius:6px;padding:10px 14px;text-align:center;font-size:13px">
+        <div style="font-weight:600;margin-bottom:4px">步骤2</div>
+        <div>跳转 CAS 登录</div>
+        <div style="color:var(--text-secondary);font-size:11px">输入校园账号</div>
+      </div>
+      <div style="font-size:18px;color:var(--text-secondary)">→</div>
+      <div style="background:var(--brand);border-radius:6px;padding:10px 14px;text-align:center;font-size:13px;color:white">
+        <div style="font-weight:600;margin-bottom:4px">步骤3</div>
+        <div>CAS回调 + 签发JWT</div>
+        <div style="opacity:0.8;font-size:11px">获取学号</div>
+      </div>
+      <div style="font-size:18px;color:var(--text-secondary)">→</div>
+      <div style="background:var(--bg-secondary);border-radius:6px;padding:10px 14px;text-align:center;font-size:13px">
+        <div style="font-weight:600;margin-bottom:4px">步骤4</div>
+        <div>显示成绩</div>
+        <div style="color:var(--text-secondary);font-size:11px">或提示无数据</div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;padding:12px;background:var(--bg-secondary);border-radius:6px;font-size:13px">
+      <strong>若考试开启了身份证验证（可选配置）：</strong><br>
+      步骤3和4之间插入→ 学生输入身份证号 → 后台校验是否与成绩表中的身份证号匹配 → 匹配成功才显示成绩
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>成绩展示设计 — 移动端优先</h3>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">有身份证验证</div>
+      <div class="mockup-body" style="max-width:320px;margin:0 auto">
+        <div style="text-align:center;padding:8px 0;font-weight:600">特勤招录选拔成绩查询</div>
+        <div style="padding:8px;font-size:13px;color:var(--text-secondary);text-align:center">已通过统一身份认证</div>
+        <div style="padding:12px">
+          <input class="mock-input" placeholder="请输入身份证号" style="width:100%;margin-bottom:12px">
+          <button class="mock-button" style="width:100%">查询成绩</button>
+        </div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">成绩展示卡片</div>
+      <div class="mockup-body" style="max-width:320px;margin:0 auto">
+        <div style="text-align:center;padding:8px 0;font-weight:600">特勤招录选拔成绩</div>
+        <div style="background:var(--bg-secondary);border-radius:8px;padding:12px;margin:8px 0">
+          <div style="font-size:13px;margin-bottom:4px">姓名：张三 | 队别：一中队</div>
+          <div style="font-size:13px;margin-bottom:4px">学号：2022200117</div>
+          <div style="display:flex;justify-content:space-around;margin-top:8px">
+            <div style="text-align:center"><div style="font-size:11px;color:var(--text-secondary)">行测</div><div style="font-weight:600">61.4</div></div>
+            <div style="text-align:center"><div style="font-size:11px;color:var(--text-secondary)">面试</div><div style="font-weight:600">78</div></div>
+            <div style="text-align:center"><div style="font-size:11px;color:var(--text-secondary)">总成绩</div><div style="font-weight:600;color:var(--brand)">64.64</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

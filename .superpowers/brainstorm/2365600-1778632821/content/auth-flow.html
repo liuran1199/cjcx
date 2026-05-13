@@ -1,0 +1,29 @@
+<h2>查询流程二选一</h2>
+<p class="subtitle">学生打开页面后，用什么方式匹配身份和成绩？</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>纯身份证号查询</h3>
+      <p>学生打开页面 → 输入身份证号 → 用身份证号从 Excel 中匹配成绩 → 显示结果</p>
+      <p>不需要统一认证，但任何人知道身份证号都能查</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>认证后自动查询</h3>
+      <p>学生打开页面 → 跳转统一认证登录 → 认证系统返回学生身份（含身份证号）→ 自动从 Excel 匹配成绩 → 显示结果</p>
+      <p>更安全，但依赖认证系统能返回身份证号</p>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>认证 + 手动输入</h3>
+      <p>学生打开页面 → 跳转统一认证登录 → 认证通过后显示查询框 → 输入身份证号 → 匹配成绩</p>
+      <p>双重校验最安全，但流程更繁琐</p>
+    </div>
+  </div>
+</div>

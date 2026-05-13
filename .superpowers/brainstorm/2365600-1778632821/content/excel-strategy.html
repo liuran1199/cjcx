@@ -1,0 +1,29 @@
+<h2>多考试管理 — Excel 导入策略</h2>
+<p class="subtitle">不同考试的成绩列不一样，系统怎么适配？</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>固定列映射</h3>
+      <p>管理员先创建考试，定义好列名（如"语文、数学"），再上传 Excel。</p>
+      <p>适合成绩结构相对固定的场景，列名必须匹配。</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>自动识别 + 人工确认</h3>
+      <p>上传 Excel 后自动读取表头，展示预览，管理员确认每列的角色：哪列是身份证号、哪列是学号、哪些是成绩列。</p>
+      <p>灵活度高，但需要管理员每次确认。</p>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>灵活键值存储</h3>
+      <p>每个考试的成绩存为 JSON（列名动态），管理员只需确保 Excel 包含<strong>学号</strong>和<strong>身份证号</strong>两列用于匹配，其余列自动存入。</p>
+      <p>最灵活，不同考试完全不受列结构限制。</p>
+    </div>
+  </div>
+</div>
