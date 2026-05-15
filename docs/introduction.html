@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>学生成绩自助查询系统 — 项目介绍</title>
+<style>
+  body { font-family: "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; color: #333; line-height: 1.8; font-size: 14px; }
+  h1 { text-align: center; font-size: 28px; margin-bottom: 8px; color: #1a1a1a; }
+  .subtitle { text-align: center; color: #666; font-size: 13px; margin-bottom: 32px; }
+  h2 { font-size: 20px; border-bottom: 2px solid #667eea; padding-bottom: 6px; margin-top: 32px; color: #1a1a1a; }
+  h3 { font-size: 16px; margin-top: 20px; color: #333; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; }
+  th { background: #667eea; color: white; padding: 8px 12px; text-align: left; }
+  td { padding: 8px 12px; border-bottom: 1px solid #e8e8e8; }
+  tr:nth-child(even) td { background: #f8f9ff; }
+  ul, ol { margin: 8px 0 16px; padding-left: 20px; }
+  li { margin: 4px 0; }
+  code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: 13px; }
+  pre { background: #f5f5f5; padding: 14px 16px; border-radius: 6px; overflow-x: auto; font-size: 12px; line-height: 1.5; }
+  .feature-grid { display: flex; flex-wrap: wrap; gap: 16px; margin: 12px 0; }
+  .feature-card { flex: 1 1 45%; background: #f8f9ff; border-left: 4px solid #667eea; padding: 12px 16px; border-radius: 4px; }
+  .feature-card h4 { margin: 0 0 6px; color: #667eea; }
+  .feature-card p { margin: 0; font-size: 13px; color: #555; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; }
+  .badge-blue { background: #667eea; color: white; }
+  .badge-green { background: #67c23a; color: white; }
+  .badge-orange { background: #e6a23c; color: white; }
+  .footer { text-align: center; color: #999; font-size: 12px; margin-top: 40px; padding-top: 16px; border-top: 1px solid #eee; }
+  .page-break { page-break-after: always; }
+  .toc { background: #f8f9ff; padding: 16px 24px; border-radius: 8px; margin: 20px 0; font-size: 13px; }
+  .toc a { color: #667eea; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<h1>学生成绩自助查询系统</h1>
+<p class="subtitle">基于 CAS 统一身份认证 · 多考试管理 · Excel 批量导入 · 安全合规</p>
+
+<div class="toc">
+<strong>目录</strong>
+<ol>
+  <li><a href="#s1">项目概述</a></li>
+  <li><a href="#s2">应用场景</a></li>
+  <li><a href="#s3">主要功能</a></li>
+  <li><a href="#s4">技术框架</a></li>
+  <li><a href="#s5">系统架构</a></li>
+  <li><a href="#s6">安全特性</a></li>
+  <li><a href="#s7">部署说明</a></li>
+  <li><a href="#s8">项目信息</a></li>
+</ol>
+</div>
+
+<h2 id="s1">1. 项目概述</h2>
+
+<p>学生成绩自助查询系统是一个为高校/中小学设计的轻量级成绩发布平台。学生通过企业微信或 PC 浏览器打开页面，自动完成 CAS 统一身份认证，立即查看考试成绩。管理员通过后台管理多场考试、上传 Excel 批量导入成绩、查看查询日志。</p>
+
+<p>系统设计遵循<strong>零运维、易部署</strong>原则：SQLite 单文件数据库无需额外安装，Nginx + systemd 一行命令即可上线。身份证号采用 AES-256-GCM 加密存储，前端脱敏展示，满足个人信息保护要求。</p>
+
+<h2 id="s2">2. 应用场景</h2>
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <h4>期末/期中成绩发布</h4>
+    <p>教师整理 Excel 上传，学生登录即查，无需逐个通知。支持自定义成绩列（总分、排名、各科分数等）。</p>
+  </div>
+  <div class="feature-card">
+    <h4>招录选拔考试</h4>
+    <p>如公安联考、特勤招录等选拔考试，支持开启身份证号二次验证，确保成绩仅本人可查。</p>
+  </div>
+  <div class="feature-card">
+    <h4>模拟考试成绩反馈</h4>
+    <p>一年多次模拟考，系统支持多考试独立管理，管理员可按需上架/下架，学生端仅显示当前开放的考试。</p>
+  </div>
+  <div class="feature-card">
+    <h4>企业微信集成</h4>
+    <p>企业微信已对接 CAS 统一认证，学生点开链接自动完成认证，无需输入账号密码，体验无缝。</p>
+  </div>
+</div>
+
+<h2 id="s3">3. 主要功能</h2>
+
+<h3>3.1 学生端</h3>
+<table>
+  <tr><th width="25%">功能</th><th>说明</th></tr>
+  <tr><td>CAS 自动登录</td><td>打开页面自动跳转统一认证，完成认证后回调并自动登录</td></tr>
+  <tr><td>考试列表</td><td>展示所有管理员已上架的考试，含考试名称和时间</td></tr>
+  <tr><td>成绩查询</td><td>选择考试后展示完整成绩单：姓名、学号、身份证号（脱敏）、各科分数</td></tr>
+  <tr><td>身份证验证</td><td>考试开启身份验证时，需输入身份证号确认身份后方可查看成绩</td></tr>
+</table>
+
+<h3>3.2 管理后台</h3>
+<table>
+  <tr><th width="25%">功能</th><th>说明</th></tr>
+  <tr><td>考试管理</td><td>新建/编辑/删除考试；自定义成绩列；一键开启/关闭考试上下架</td></tr>
+  <tr><td>Excel 导入</td><td>上传 Excel 自动识别列名 → 列映射确认 → 数据预览 → 一键导入；支持下载导入模版</td></tr>
+  <tr><td>成绩管理</td><td>按考试搜索、查看、编辑、删除单条成绩记录</td></tr>
+  <tr><td>CAS 配置</td><td>配置统一认证服务器地址、回调地址、启用/禁用开关</td></tr>
+  <tr><td>账号管理</td><td>创建/删除本地管理员账号（超级管理员可管理普通管理员）</td></tr>
+  <tr><td>查询日志</td><td>记录每次查询的考试、学号、IP、结果（成功/失败/身份证不匹配），可追溯审计</td></tr>
+</table>
+
+<h2 id="s4">4. 技术框架</h2>
+
+<table>
+  <tr><th width="20%">层级</th><th width="35%">技术</th><th>说明</th></tr>
+  <tr><td>前端框架</td><td>Vue 3 + Element Plus</td><td>响应式 SPA，PC/移动端自适应</td></tr>
+  <tr><td>构建工具</td><td>Vite</td><td>极速开发服务器 + 生产构建</td></tr>
+  <tr><td>后端框架</td><td>Node.js + Express</td><td>RESTful API，中间件架构</td></tr>
+  <tr><td>数据库</td><td>SQLite (better-sqlite3)</td><td>零配置、单文件、WAL 模式，适合中小规模</td></tr>
+  <tr><td>认证</td><td>JWT + CAS 协议</td><td>HttpOnly Cookie 存储 JWT，CAS ticket 服务端校验</td></tr>
+  <tr><td>加密</td><td>AES-256-GCM</td><td>身份证号加密存储，scrypt 密钥派生，认证标签防篡改</td></tr>
+  <tr><td>Web 服务器</td><td>Nginx</td><td>静态资源 + API 反向代理</td></tr>
+  <tr><td>进程管理</td><td>systemd</td><td>开机自启，异常自动重启</td></tr>
+</table>
+
+<h2 id="s5">5. 系统架构</h2>
+
+<pre>
+┌───────────────────────────────────────┐
+│              浏 览 器                  │
+│  (企业微信 / PC Chrome / Edge)         │
+└──────────┬────────────────────────────┘
+           │ HTTPS / HTTP
+           ▼
+┌───────────────────────────────────────┐
+│              Nginx (:80)              │
+│  /          → SPA 静态文件            │
+│  /api/*     → 反向代理到 :3004        │
+└──────────┬────────────────────────────┘
+           │
+           ▼
+┌───────────────────────────────────────┐
+│          Express API (:3004)          │
+│  ┌─────────┐ ┌─────────┐ ┌────────┐  │
+│  │ auth路由 │ │query路由│ │admin路由│  │
+│  │CAS/登录  │ │学生查分  │ │后台管理 │  │
+│  └────┬────┘ └────┬────┘ └───┬────┘  │
+│       └───────────┴──────────┘        │
+│                    │                   │
+│              ┌─────▼─────┐            │
+│              │  SQLite   │            │
+│              │ campus.db │            │
+│              └───────────┘            │
+└───────────────────────────────────────┘
+           │
+           ▼
+┌───────────────────────────────────────┐
+│         CAS 统一认证服务器             │
+│      sso.cppu.edu.cn/tpass            │
+└───────────────────────────────────────┘
+</pre>
+
+<h2 id="s6">6. 安全特性</h2>
+
+<table>
+  <tr><th width="35%">措施</th><th>说明</th></tr>
+  <tr><td>AES-256-GCM 加密</td><td>身份证号使用 AES-256-GCM 认证加密，附带认证标签防篡改</td></tr>
+  <tr><td>前端脱敏展示</td><td>身份证号仅显示前 4 位 + **** + 后 4 位（如 3401****1234）</td></tr>
+  <tr><td>HttpOnly Cookie</td><td>JWT 存储在 HttpOnly Cookie 中，JavaScript 无法读取，防止 XSS 窃取</td></tr>
+  <tr><td>CSP 内容安全策略</td><td>限制脚本/样式/图片/字体加载来源，防止跨站脚本攻击</td></tr>
+  <tr><td>登录限流</td><td>登录接口独立限流（5 次/分钟/IP），防止暴力破解</td></tr>
+  <tr><td>CORS 白名单</td><td>仅允许配置的域名跨域访问，拒绝未知来源的请求</td></tr>
+  <tr><td>参数化查询</td><td>所有数据库操作使用 ? 占位符参数化，杜绝 SQL 注入</td></tr>
+  <tr><td>环境变量密钥</td><td>JWT_SECRET 和 ENCRYPTION_KEY 由环境变量注入，代码中无硬编码</td></tr>
+  <tr><td>上传大小限制</td><td>Excel 文件上传限制 10MB，防止内存耗尽攻击</td></tr>
+</table>
+
+<h2 id="s7">7. 部署说明</h2>
+
+<h3>环境要求</h3>
+<ul>
+  <li>Node.js 18+</li>
+  <li>Nginx（可选，生产环境推荐）</li>
+  <li>操作系统：Linux（Ubuntu 20.04+/Debian/CentOS）</li>
+</ul>
+
+<h3>快速部署（5 分钟）</h3>
+<ol>
+  <li>克隆仓库：<code>git clone https://github.com/liuran1199/cjcx.git</code></li>
+  <li>配置环境变量：<code>cp .env.example .env</code>，填入随机生成的 JWT_SECRET 和 ENCRYPTION_KEY</li>
+  <li>安装依赖：<code>cd server && npm install</code></li>
+  <li>构建前端：<code>cd ../client && npm install && npm run build</code></li>
+  <li>启动服务：<code>cd ../server && node index.js</code></li>
+</ol>
+<p>首次启动自动创建 SQLite 数据库，并生成管理员随机密码打印到控制台。</p>
+
+<h3>生产环境部署</h3>
+<p>推荐 Nginx + systemd，详见项目 README.md 中的完整配置模板。</p>
+
+<h2 id="s8">8. 项目信息</h2>
+
+<table>
+  <tr><td width="20%"><strong>项目名称</strong></td><td>学生成绩自助查询系统（CJCX）</td></tr>
+  <tr><td><strong>GitHub</strong></td><td><a href="https://github.com/liuran1199/cjcx">https://github.com/liuran1199/cjcx</a></td></tr>
+  <tr><td><strong>技术栈</strong></td><td>Vue 3 + Element Plus + Vite / Node.js + Express + SQLite</td></tr>
+  <tr><td><strong>认证方式</strong></td><td>CAS 统一身份认证 + 本地账号密码</td></tr>
+  <tr><td><strong>许可证</strong></td><td>MIT</td></tr>
+  <tr><td><strong>适用规模</strong></td><td>单校使用，支持数千学生并发查询</td></tr>
+</table>
+
+<div class="footer">
+  <p>如有问题或建议，欢迎提 GitHub Issue 或 Pull Request</p>
+</div>
+
+</body>
+</html>
