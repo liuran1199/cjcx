@@ -195,11 +195,7 @@ sudo systemctl enable --now cjcx-api
 
 ## GitHub 仓库
 
-> 将本仓库推送到 GitHub 后替换此处链接
-
-```
-https://github.com/your-org/score-query-system
-```
+https://github.com/liuran1199/cjcx
 
 ## License
 
